@@ -27,7 +27,7 @@
 
   const { data: posts, error: errorPosts } = await db
     .from('posts')
-    .select('id, titulo, contenido, created_at')
+    .select(CAMPOS_POST)
     .eq('autor_id', perfil.id)
     .eq('publicado', true)
     .order('created_at', { ascending: false });
@@ -35,5 +35,6 @@
   if (errorPosts) { console.error(errorPosts); lista.append(crear('p', 'ayuda', 'No se pudieron cargar los posts.')); return; }
   if (!posts.length) { lista.append(crear('p', 'ayuda', 'Todavía no hay posts por acá ✧')); return; }
 
-  posts.forEach(p => lista.append(tarjetaPost(p, false)));
+  await cargarYo();                       // ¿quién está mirando? (para likes y respuestas)
+  await pintarPosts(lista, posts, false);
 })();
