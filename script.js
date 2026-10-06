@@ -3,6 +3,7 @@
 let sesionId = null;     // id de la persona que inició sesión
 let miPerfil = null;     // su fila de la tabla perfiles
 let editandoId = null;   // id del post que se está editando (o null)
+let primeraVez = true;   // para cargar el feed la primera vez aunque no haya sesión
 
 
 /* ---------- SESIÓN ---------- */
@@ -11,26 +12,32 @@ async function actualizarSesion(session) {
   const user = session ? session.user : null;
 
   // si es la misma sesión de antes, no hacemos nada
-  if ((user ? user.id : null) === sesionId && (user ? miPerfil : true)) return;
+  const mismaSesion = (user ? user.id : null) === sesionId && (user ? !!miPerfil : true);
+  if (mismaSesion && !primeraVez) return;
+  primeraVez = false;
 
   sesionId = user ? user.id : null;
   miPerfil = null;
+  yoId = null;
 
   $('vista-auth').hidden = !!user;
   $('vista-panel').hidden = !user;
   $('btn-salir').hidden = !user;
 
-  if (!user) return;
+  if (user) {
+    const { data, error } = await db
+      .from('perfiles')
+      .select('id, usuario, nombre, bio')
+      .eq('id', user.id)
+      .maybeSingle();
 
-  const { data, error } = await db
-    .from('perfiles')
-    .select('id, usuario, nombre, bio')
-    .eq('id', user.id)
-    .maybeSingle();
+    if (error) console.error(error);
+    miPerfil = data;
+    yoId = data ? data.id : null;
+    mostrarPanel();
+  }
 
-  if (error) console.error(error);
-  miPerfil = data;
-  mostrarPanel();
+  cargarUltimos();
 }
 
 function mostrarPanel() {
@@ -111,7 +118,9 @@ $('form-perfil').addEventListener('submit', async e => {
   }
 
   miPerfil = { id: sesionId, usuario, nombre, bio };
+  yoId = sesionId;
   mostrarPanel();
+  cargarUltimos();
 });
 
 
@@ -167,19 +176,30 @@ $('form-post').addEventListener('submit', async e => {
 
 async function cargarMisPosts() {
   const lista = $('mis-posts');
-  lista.innerHTML = '';
 
   const { data, error } = await db
     .from('posts')
-    .select('id, titulo, contenido, publicado, created_at')
+    .select(CAMPOS_POST + ', publicado')
     .eq('autor_id', sesionId)
     .order('created_at', { ascending: false });
 
-  if (error) { console.error(error); lista.append(crear('p', 'ayuda', 'No se pudieron cargar tus posts.')); return; }
-  if (!data.length) { lista.append(crear('p', 'ayuda', 'Todavía no escribiste nada. ¡Animate! ✧')); return; }
+  if (error) {
+    console.error(error);
+    lista.innerHTML = '';
+    lista.append(crear('p', 'ayuda', 'No se pudieron cargar tus posts.'));
+    return;
+  }
+  if (!data.length) {
+    lista.innerHTML = '';
+    lista.append(crear('p', 'ayuda', 'Todavía no escribiste nada. ¡Animate! ✧'));
+    return;
+  }
+
+  const mios = await misLikesDe(data);
+  lista.innerHTML = '';   // se limpia justo antes de dibujar, así no se duplican
 
   data.forEach(p => {
-    const tarjeta = tarjetaPost(p, false);
+    const tarjeta = tarjetaPost(p, false, mios.has(p.id));
     if (!p.publicado) tarjeta.prepend(crear('span', 'etiqueta', 'borrador'));
 
     const botones = crear('div', 'botones');
@@ -219,19 +239,25 @@ async function cargarMisPosts() {
 
 async function cargarUltimos() {
   const lista = $('ultimos');
-  lista.innerHTML = '';
 
   const { data, error } = await db
     .from('posts')
-    .select('id, titulo, contenido, created_at, perfiles(usuario, nombre)')
+    .select(CAMPOS_POST)
     .eq('publicado', true)
     .order('created_at', { ascending: false })
     .limit(20);
 
-  if (error) { console.error(error); lista.append(crear('p', 'ayuda', 'No se pudieron cargar los posts.')); return; }
-  if (!data.length) { lista.append(crear('p', 'ayuda', 'Todavía no hay posts. ¡Sé la primera persona en escribir! ♡')); return; }
+  if (error) {
+    console.error(error);
+    lista.innerHTML = '';
+    lista.append(crear('p', 'ayuda', 'No se pudieron cargar los posts.'));
+    return;
+  }
+  if (!data.length) {
+    lista.innerHTML = '';
+    lista.append(crear('p', 'ayuda', 'Todavía no hay posts. ¡Sé la primera persona en escribir! ♡'));
+    return;
+  }
 
-  data.forEach(p => lista.append(tarjetaPost(p, true)));
-}
-
-cargarUltimos();
+  await pintarPosts(lista, data, true);
+  }
