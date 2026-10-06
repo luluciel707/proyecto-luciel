@@ -1,7 +1,7 @@
 /* ♡ CONEXIÓN Y FUNCIONES COMPARTIDAS ♡ */
 
-const SUPABASE_URL = 'PEGA-ACA-LA-URL-DEL-PROYECTO-NUEVO';
-const SUPABASE_KEY = 'PEGA-ACA-LA-PUBLISHABLE-KEY';
+const SUPABASE_URL = 'https://sayehiisneupxkivuqmo.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNheWVoaWlzbmV1cHhraXZ1cW1vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNjkyMTAsImV4cCI6MjEwNjY0NTIxMH0._pBgwalHq3EHULLKeXsbrUrPHBX5RcJdiyk3zuyKcRk';
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
