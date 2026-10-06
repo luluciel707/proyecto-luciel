@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>♡ blogcitos ♡</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="top">
+    <a class="logo" href="index.html">♡ blogcitos</a>
+    <button id="btn-salir" type="button" hidden>cerrar sesión</button>
+  </header>
+
+  <main>
+
+    <section class="intro">
+      <h1>blogcitos</h1>
+      <p>Un rinconcito donde cada persona tiene su propio blog (◕‿◕✿)</p>
+    </section>
+
+    <!-- SI NO INICIASTE SESIÓN -->
+    <section id="vista-auth">
+      <div class="dos">
+        <form id="form-login" class="panel">
+          <h2>Entrar</h2>
+          <label>Email <input id="login-email" type="email" autocomplete="email" required></label>
+          <label>Contraseña <input id="login-pass" type="password" autocomplete="current-password" required></label>
+          <button type="submit">Entrar ♡</button>
+        </form>
+
+        <form id="form-registro" class="panel">
+          <h2>Crear cuenta</h2>
+          <label>Email <input id="reg-email" type="email" autocomplete="email" required></label>
+          <label>Contraseña (mínimo 8) <input id="reg-pass" type="password" autocomplete="new-password" minlength="8" required></label>
+          <button type="submit">Crear cuenta ✧</button>
+        </form>
+      </div>
+      <p id="aviso-auth" class="aviso" role="status"></p>
+    </section>
+
+    <!-- SI YA INICIASTE SESIÓN -->
+    <section id="vista-panel" hidden>
+
+      <!-- primera vez: elegir usuario -->
+      <form id="form-perfil" class="panel" hidden>
+        <h2>Armá tu blog ✿</h2>
+        <p>Elegí tu nombre de usuario: va a ser parte del link de tu blog.</p>
+        <label>Usuario (letras minúsculas, números o _; de 3 a 20)
+          <input id="perfil-usuario" maxlength="20" autocomplete="off" required>
+        </label>
+        <label>Nombre para mostrar (opcional)
+          <input id="perfil-nombre" maxlength="40">
+        </label>
+        <label>Una bio cortita (opcional)
+          <textarea id="perfil-bio" rows="3" maxlength="300"></textarea>
+        </label>
+        <button type="submit">Crear mi blog ♡</button>
+        <p id="aviso-perfil" class="aviso" role="status"></p>
+      </form>
+
+      <!-- editor y mis posts -->
+      <div id="bloque-editor" hidden>
+        <div class="panel">
+          <p>Hola, <strong id="saludo"></strong> ♡ · <a id="ver-mi-blog" href="#">ver mi blog</a></p>
+          <h2 id="editor-titulo">Nuevo post</h2>
+          <form id="form-post">
+            <label>Título <input id="post-titulo" maxlength="120" required></label>
+            <label>Contenido
+              <textarea id="post-contenido" rows="8" maxlength="20000" required></textarea>
+            </label>
+            <label class="check"><input id="post-borrador" type="checkbox"> guardar como borrador (no se ve en público)</label>
+            <div class="botones">
+              <button id="post-enviar" type="submit">Publicar ♡</button>
+              <button id="post-cancelar" type="button" class="suave" hidden>Cancelar edición</button>
+            </div>
+          </form>
+          <p id="aviso-post" class="aviso" role="status"></p>
+        </div>
+
+        <h2>Mis posts</h2>
+        <div id="mis-posts" class="lista"></div>
+      </div>
+
+    </section>
+
+    <section>
+      <h2>Últimos posts ✧</h2>
+      <div id="ultimos" class="lista"></div>
+    </section>
+
+  </main>
+
+  <footer>ʕ•ᴥ•ʔ hecho con cariño</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
